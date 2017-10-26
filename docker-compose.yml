@@ -1,0 +1,39 @@
+# There are currently 3 compose file versions we can choose from.
+# https://docs.docker.com/compose/compose-file/compose-versioning/
+# v3 is most recent and swarm-mode compatible
+# this might change at later releases
+version: "3"
+services:
+  # web service
+  web:
+    # pull docker image we push to dockerhub.
+    image: atlas7/py36-hello-flask:v0.0.1
+    # this is how we deploy the web service
+    deploy:
+      # run 5 instances of that image as a service called `web`
+      # increase this number to scale up, or reduce to scale down.
+      replicas: 5
+      # configure web service resource allocation
+      resources:
+        # limit each instance to run at this much resources at most
+        # e.g. total max CPU would be `replicas` * `limits.cpus`
+        # e.g. total max RAM would be `replicas` * `limits.memory`
+        limits:
+          # 10% CPU (across all cores)
+          cpus: "0.1"
+          # 50 MB of RAM
+          memory: 50M
+      # this is how we restart the web service
+      restart_policy:
+        # Immediate restart containers if one fails
+        condition: on-failure
+    # Map localhost port 80 to web's port 80.
+    ports:
+      - "80:80"
+    # Instruct web’s containers to share port 80 via a load-balanced network called `webnet`.
+    # (Internally, the containers themselves will publish to web service’s port 80 at an ephemeral port.)
+    networks:
+      - webnet
+networks:
+  # Define the webnet network with the default settings (which is a load-balanced overlay network).
+  webnet:
