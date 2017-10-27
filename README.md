@@ -59,3 +59,46 @@ Example:
     - Remove service getstartedlab_web
     - Remove network getstartedlab_webnet
 - Do a `docker swarm leave --force` to take down the swarm. This will remove the swarm node.
+
+### Step 3 - Create a swarm
+
+- Create virtual machines:
+    - run `docker-machine create --driver virtualbox myvm1`
+    - run `docker-machine create --driver virtualbox myvm2`
+- List virtual machines (and obtain IP address of each node):
+    - run `docker-machine ls`
+- Initialize the swarm
+    - Run `docker-machine ssh myvm1 "docker swarm init --advertise-addr <myvm1 ip>"`
+    - `myvm1` is now a swarm manager
+    - make a node of the token returned. This is required to enable other nodes to join this swarm.
+- Add node `myvm2` to the swarm (manager `myvm1`)
+    - `docker-machine ssh myvm2 "docker swarm join --token <token> <myvm1 ip>:2377`
+- list out all swarm nodes on the swarm manager:
+    - `docker-machine ssh myvm1 "docker node ls"` (record the node IDs here)
+- (FYI only) To temporary make `myvm2` leave the swarm:
+    - `docker-machine ssh myvm2 "docker swarm leave"`
+- (FYI only) To remove `myvm2` node from swarm:
+    - `docker-machine ssh myvm1 "docker node rm <myvm2 node id>"`
+- **IMPORTANT**: copy the `docker-compose.yml` file from local machine to the swarm leader `myvm1`.
+    (do this everytime we redeploy stack)
+    Run `docker-machine scp docker-compose.yml myvm1:~`  (make sure we are at the root of this repository).
+- Deploy the application (stack) to the swarm (via swarm manager`myvm1`):
+    `docker-machine ssh myvm1 "docker stack deploy -c docker-compose.yml getstartedlab"`. This will:
+  - Create network getstartedlab_webnet
+  - Create service getstartedlab_web
+- List our application (stack) within the swarm (via the swarm manager `myvm1`):
+    `docker-machine ssh myvm1 "docker stack ps getstartedlab"`
+- (FYI only) to view `docker-machine` info (such as IP address, etc), do something like this:
+    - `docker-machine env myvm1`
+    - `docker-machine env myvm2`
+- Access app from IP address of either `myvm1` or `myvm2` (cool!). e.g.
+    - via `myvm1` IP
+    - via `myvm2` IP  
+- (FYI only) To tear down stack: `docker-machine ssh myvm1 "docker stack rm getstartedlab"`
+- (FYI only) To restart Docker machines: `docker-machine ssh myvm1 "docker-machine start <machine-name>"`
+- (FYI only) At some point later, you can remove this swarm if you want to with
+    `docker-machine ssh myvm2 "docker swarm leave"` on the worker, and
+    `docker-machine ssh myvm1 "docker swarm leave --force"` on the manager,
+    but you’ll need this swarm for next part, so please keep it around for now.
+- (FYI only) [This is a snapshot](https://twitter.com/jAtlas7/status/923948835088621571)
+    of what the output looks like
