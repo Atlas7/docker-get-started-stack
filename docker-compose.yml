@@ -27,7 +27,7 @@ services:
       restart_policy:
         # Immediate restart containers if one fails
         condition: on-failure
-    # Map localhost port 80 (left) to web service port 80 (right)
+    # Map the world's port 80 (left) to web service port 80 (right)
     ports:
       - "80:80"
     # Instruct web’s containers to share port 80 via a load-balanced network called `webnet`.
@@ -40,7 +40,7 @@ services:
   visualizer:
       # pull docker image from dockerhub.
       image: dockersamples/visualizer:stable
-      # Map localhost port 8080 (left) to visualizer service port 80 (right)
+      # Map the host's port 8080 (left) to visualizer service port 80 (right)
       ports:
         - "8080:8080"
       # giving the visualizer (right) access to the host’s socket file (left) for Docker
@@ -57,6 +57,31 @@ services:
       # (Internally, the containers themselves will publish to visualizer service’s port 8080 at an ephemeral port.)
       networks:
         - webnet
+
+  # redis database service
+  redis:
+    # official Docker image granted a short image name - so no username/redis needed
+    image: redis
+     # Map the host's port 6379 (left) to redis service port 6379 (right)
+    ports:
+      - "6379:6379"
+    # Map the (manager) host's file system (left) to redis's container /data file system (right)
+    # Together, this is creating a “source of truth” in your host’s physical filesystem for the Redis data.
+    # Without this, Redis would store its data in /data inside the container’s filesystem,
+    # which would get wiped out if that container were ever redeployed.
+    # The volume you created that lets the container access ~/data (on the host) as /data (inside the Redis container).
+    # While containers come and go, the files stored on ./data on the specified host will persist, enabling continuity.
+    # Note: we need to explicitly create a directory on the host like this
+    # docker-machine ssh myvm1 "mkdir /home/docker/data"  (this kind of thing might need to be automated later on)
+    volumes:
+      - /home/docker/data:/data
+    deploy:
+      placement:
+        #Deploy on Manager (myvm1) only
+        constraints: [node.role == manager]
+    command: redis-server --appendonly yes
+    networks:
+      - webnet
 networks:
   # Define the webnet network with the default settings (which is a load-balanced overlay network).
   webnet:
