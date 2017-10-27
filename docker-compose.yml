@@ -12,7 +12,7 @@ services:
     deploy:
       # run 5 instances of that image as a service called `web`
       # increase this number to scale up, or reduce to scale down.
-      replicas: 5
+      replicas: 4
       # configure web service resource allocation
       resources:
         # limit each instance to run at this much resources at most
@@ -29,7 +29,7 @@ services:
         condition: on-failure
     # Map localhost port 80 to web's port 80.
     ports:
-      - "80:80"
+      - "8080:80"
     # Instruct web’s containers to share port 80 via a load-balanced network called `webnet`.
     # (Internally, the containers themselves will publish to web service’s port 80 at an ephemeral port.)
     networks:
