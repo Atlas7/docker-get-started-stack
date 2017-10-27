@@ -12,7 +12,7 @@ services:
     deploy:
       # run 5 instances of that image as a service called `web`
       # increase this number to scale up, or reduce to scale down.
-      replicas: 4
+      replicas: 5
       # configure web service resource allocation
       resources:
         # limit each instance to run at this much resources at most
