@@ -1,7 +1,11 @@
 
 # Development Steps
 
-### Step 1 - build and deploy docker image
+### Part 1 - Install Docker and understand concept
+
+Refer to [Docker Orientation and setup guide](https://docs.docker.com/get-started/)
+
+### Part 2 - build and deploy docker image
 
 Deploy a Docker container as per [this tutorial](https://docs.docker.com/get-started/part2/).
 
@@ -17,7 +21,7 @@ Summary:
 - Go to [http://localhost:4000/](http://localhost:4000/) to access Flask web application.
 - Git commit!
 
-### Step 2
+### Part 3 - single-machine services
 
 Create a service (with load-balancing, distributed across task-containers in a swarm).
 See this [Tutorial](https://docs.docker.com/get-started/part3/).
@@ -60,7 +64,7 @@ Example:
     - Remove network getstartedlab_webnet
 - Do a `docker swarm leave --force` to take down the swarm. This will remove the swarm node.
 
-### Step 3 - Create a swarm
+### Part 4 - Create a multi-machine swarm
 
 - Create virtual machines:
     - run `docker-machine create --driver virtualbox myvm1`
@@ -102,3 +106,4 @@ Example:
     but you’ll need this swarm for next part, so please keep it around for now.
 - (FYI only) [This is a snapshot](https://twitter.com/jAtlas7/status/923948835088621571)
     of what the output looks like
+ 
