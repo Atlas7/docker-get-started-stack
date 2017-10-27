@@ -110,6 +110,8 @@ Example:
  
  ### Part 5 - Stacks
  
+ Refer to [Docker Get Started Tutorial Part 5](https://docs.docker.com/get-started/part5/)
+ 
  - top tip (do this now): to instead of having to type out `docker-machine ssh myvm1 "<some docker commands>""`,
     we can do a
     `eval $(docker-machine env myvm1)`. This will export all the environmental variable of `myvm1` to `localhost`,
