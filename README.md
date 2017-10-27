@@ -1,7 +1,11 @@
 
 # Development Steps
 
-### Step 1 - build and deploy docker image
+### Part 1 - Install Docker and understand concept
+
+Refer to [Docker Orientation and setup guide](https://docs.docker.com/get-started/)
+
+### Part 2 - build and deploy docker image
 
 Deploy a Docker container as per [this tutorial](https://docs.docker.com/get-started/part2/).
 
@@ -17,7 +21,7 @@ Summary:
 - Go to [http://localhost:4000/](http://localhost:4000/) to access Flask web application.
 - Git commit!
 
-### Step 2
+### Part 3 - single-machine services
 
 Create a service (with load-balancing, distributed across task-containers in a swarm).
 See this [Tutorial](https://docs.docker.com/get-started/part3/).
@@ -60,7 +64,7 @@ Example:
     - Remove network getstartedlab_webnet
 - Do a `docker swarm leave --force` to take down the swarm. This will remove the swarm node.
 
-### Step 3 - Create a swarm
+### Part 4 - Create a multi-machine swarm
 
 - Create virtual machines:
     - run `docker-machine create --driver virtualbox myvm1`
@@ -82,6 +86,7 @@ Example:
 - **IMPORTANT**: copy the `docker-compose.yml` file from local machine to the swarm leader `myvm1`.
     (do this everytime we redeploy stack)
     Run `docker-machine scp docker-compose.yml myvm1:~`  (make sure we are at the root of this repository).
+    **UNLESS** we have done a `eval $(docker-machine env myvm1)` to treat current terminal `myvm1`.
 - Deploy the application (stack) to the swarm (via swarm manager`myvm1`):
     `docker-machine ssh myvm1 "docker stack deploy -c docker-compose.yml getstartedlab"`. This will:
   - Create network getstartedlab_webnet
@@ -102,3 +107,15 @@ Example:
     but you’ll need this swarm for next part, so please keep it around for now.
 - (FYI only) [This is a snapshot](https://twitter.com/jAtlas7/status/923948835088621571)
     of what the output looks like
+ 
+ ### Part 5 - Stacks
+ 
+ - top tip (do this now): to instead of having to type out `docker-machine ssh myvm1 "<some docker commands>""`,
+    we can do a
+    `eval $(docker-machine env myvm1)`. This will export all the environmental variable of `myvm1` to `localhost`,
+    for the current terminal. (Good news: this only affect the current terminal. To undo this just start a new terminal)
+ - run (in same terminal) `docker stack deploy -c docker-compose.yml getstartedlab`
+ - access visualizer via [http://192.168.99.100:8080/](http://192.168.99.100:8080/) - or whatever manager IP is.
+ - run (in same terminal) `docker stack ps getstartedlab` to see all the task IDs in the stack.
+    (recall: task ID and container ID are different thing. But 1-to-1.).
+ 
