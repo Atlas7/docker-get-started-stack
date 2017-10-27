@@ -27,13 +27,36 @@ services:
       restart_policy:
         # Immediate restart containers if one fails
         condition: on-failure
-    # Map localhost port 80 to web's port 80.
+    # Map localhost port 80 (left) to web service port 80 (right)
     ports:
       - "80:80"
     # Instruct web’s containers to share port 80 via a load-balanced network called `webnet`.
     # (Internally, the containers themselves will publish to web service’s port 80 at an ephemeral port.)
     networks:
       - webnet
+
+  # https://github.com/ManoMarks/docker-swarm-visualizer/blob/master/package.json
+  # visualizer service
+  visualizer:
+      # pull docker image from dockerhub.
+      image: dockersamples/visualizer:stable
+      # Map localhost port 8080 (left) to visualizer service port 80 (right)
+      ports:
+        - "8080:8080"
+      # giving the visualizer (right) access to the host’s socket file (left) for Docker
+      volumes:
+        - "/var/run/docker.sock:/var/run/docker.sock"
+      deploy:
+        placement:
+          # ensuring that this service only ever runs on a swarm manager – never a worker.
+          # That’s because this container, built from an open source project created by Docker,
+          # displays Docker services running on a swarm in a diagram.
+          #reminder: only a swarm manager can "see" all things within a swarm.
+          constraints: [node.role == manager]
+      # Instruct web’s containers to share port 8080 via a load-balanced network called `webnet`.
+      # (Internally, the containers themselves will publish to visualizer service’s port 8080 at an ephemeral port.)
+      networks:
+        - webnet
 networks:
   # Define the webnet network with the default settings (which is a load-balanced overlay network).
   webnet:
